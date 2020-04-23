@@ -25,6 +25,16 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
+  int curQuestionNo = 0;
+  List<Widget> resultIcons = [];
+  List<String> questions = [
+    'You can lead a cow down stairs but not up stairs.',
+    'Approximately one quarter of human bones are in the feet.',
+    'A slug\'s blood is green.'
+  ];
+  List<bool> actualAnswers = [false, true, true];
+  bool isTestFinished = false;
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,7 +47,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                'This is where the question text will go.',
+                questions[curQuestionNo],
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -61,7 +71,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                //The user picked true.
+                checkTheAnswer(true);
               },
             ),
           ),
@@ -79,14 +89,59 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                //The user picked false.
+                checkTheAnswer(false);
               },
             ),
           ),
         ),
-        //TODO: Add a Row here as your score keeper
+        Row(
+          children: resultIcons,
+        )
       ],
     );
+  }
+
+  void checkTheAnswer(bool selectedVal) {
+    if (isTestFinished) {
+      return;
+    }
+
+    if (selectedVal == actualAnswers[curQuestionNo]) {
+      setCorrectAnswer();
+    } else {
+      setWrongAnswer();
+    }
+  }
+
+  void setCorrectAnswer() {
+    setState(() {
+      resultIcons.add(Icon(
+        Icons.check,
+        color: Colors.green,
+      ));
+
+      setNextQuestion();
+    });
+  }
+
+  void setWrongAnswer() {
+    setState(() {
+      resultIcons.add(Icon(
+        Icons.close,
+        color: Colors.red,
+      ));
+
+      setNextQuestion();
+    });
+  }
+
+  void setNextQuestion() {
+    if (curQuestionNo < actualAnswers.length - 1) {
+      curQuestionNo++;
+      print("curPos $curQuestionNo");
+    } else {
+      isTestFinished = true;
+    }
   }
 }
 
