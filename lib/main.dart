@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:quizzler/Question.dart';
+import 'package:quizzler/QuestionBank.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 void main() => runApp(Quizzler());
 
@@ -25,14 +28,8 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
-  int curQuestionNo = 0;
+  QuestionBank questionBank = QuestionBank();
   List<Widget> resultIcons = [];
-  List<String> questions = [
-    'You can lead a cow down stairs but not up stairs.',
-    'Approximately one quarter of human bones are in the feet.',
-    'A slug\'s blood is green.'
-  ];
-  List<bool> actualAnswers = [false, true, true];
   bool isTestFinished = false;
 
   @override
@@ -47,7 +44,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                questions[curQuestionNo],
+                questionBank.getNextQuestion(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -102,11 +99,7 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   void checkTheAnswer(bool selectedVal) {
-    if (isTestFinished) {
-      return;
-    }
-
-    if (selectedVal == actualAnswers[curQuestionNo]) {
+    if (questionBank.getCorrectAns() == selectedVal) {
       setCorrectAnswer();
     } else {
       setWrongAnswer();
@@ -136,12 +129,32 @@ class _QuizPageState extends State<QuizPage> {
   }
 
   void setNextQuestion() {
-    if (curQuestionNo < actualAnswers.length - 1) {
-      curQuestionNo++;
-      print("curPos $curQuestionNo");
-    } else {
-      isTestFinished = true;
+    questionBank.nextQuestion();
+
+    if (!questionBank.hasNextQuestion()) {
+      showQuizFinishDialog();
     }
+  }
+
+  void showQuizFinishDialog() {
+    Alert(
+      context: context,
+      title: 'Quiz Finished',
+      desc: 'You have reached end of the Quiz',
+      buttons: [
+        DialogButton(
+          child: Text(
+            'Start Quiz'
+          ),
+          onPressed: () {
+            setState(() {
+              questionBank.reset();
+              resultIcons.clear();
+            });
+          },
+        )
+        ]
+    ).show();
   }
 }
 
